@@ -71,7 +71,7 @@ class MCU_trsync:
             "trsync_state oid=%c can_trigger=%c trigger_reason=%c clock=%u")
         ffi_main, ffi_lib = chelper.get_ffi()
         self._trdispatch_mcu = ffi_main.gc(ffi_lib.trdispatch_mcu_alloc(
-            self._trdispatch, mcu._serial.serialqueue, # XXX
+            self._trdispatch, mcu._serial.get_serialqueue(), # XXX
             self._cmd_queue, self._oid, set_timeout_tag, trigger_tag,
             state_tag), ffi_lib.free)
     def _shutdown(self):
@@ -796,12 +796,10 @@ class MCU:
             raise error("Too few moves available on MCU '%s'" % (self._name,))
         ffi_main, ffi_lib = chelper.get_ffi()
         self._steppersync = ffi_main.gc(
-            ffi_lib.steppersync_alloc(self._serial.serialqueue,
-                              self._stepqueues, len(self._stepqueues),
-                              self._sync_channels, len(self._sync_channels),
-                              move_count-self._reserved_move_slots),
-                              ffi_lib.steppersync_free)
-
+            ffi_lib.steppersync_alloc(self._serial.get_serialqueue(),
+                                      self._stepqueues, len(self._stepqueues),
+                                      move_count-self._reserved_move_slots),
+            ffi_lib.steppersync_free)
         ffi_lib.steppersync_set_time(self._steppersync, 0., self._mcu_freq)
         # Log config information
         move_msg = "Configured MCU '%s' (%d moves)" % (self._name, move_count)
