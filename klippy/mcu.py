@@ -797,9 +797,12 @@ class MCU:
         ffi_main, ffi_lib = chelper.get_ffi()
         self._steppersync = ffi_main.gc(
             ffi_lib.steppersync_alloc(self._serial.get_serialqueue(),
-                                      self._stepqueues, len(self._stepqueues),
-                                      move_count-self._reserved_move_slots),
-            ffi_lib.steppersync_free)
+                              self._stepqueues, len(self._stepqueues),
+                              self._sync_channels, len(self._sync_channels),
+                              move_count-self._reserved_move_slots),
+            ffi_lib.steppersync_free
+        )
+
         ffi_lib.steppersync_set_time(self._steppersync, 0., self._mcu_freq)
         # Log config information
         move_msg = "Configured MCU '%s' (%d moves)" % (self._name, move_count)
